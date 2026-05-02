@@ -55,13 +55,13 @@ component MetricCard inherits HudCard {
                 font-size: KernelTypo.size-2xl;
                 font-weight: 800;
                 color: KernelColors.text-primary;
-                vertical-alignment: baseline;
+                vertical-alignment: bottom;
             }
             Text {
                 text: unit;
                 font-size: KernelTypo.size-base;
                 color: KernelColors.text-secondary;
-                vertical-alignment: baseline;
+                vertical-alignment: bottom;
             }
         }
 
@@ -176,7 +176,6 @@ export component Dashboard inherits Rectangle {
                     text: "✦ CONTRAER";
                     width: 130px;
                     height: 36px;
-                    vertical-alignment: center;
                     clicked => {
                         SimState.panel-collapsed = !SimState.panel-collapsed;
                     }

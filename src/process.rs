@@ -46,19 +46,6 @@ pub enum ProcessState {
     Terminated = 4,
 }
 
-impl ProcessState {
-    /// Returns a human-readable label for the state.
-    pub fn label(&self) -> &'static str {
-        match self {
-            ProcessState::New => "NUEVO",
-            ProcessState::Ready => "LISTO",
-            ProcessState::Running => "EJECUTANDO",
-            ProcessState::Blocked => "ESPERANDO",
-            ProcessState::Terminated => "TERMINADO",
-        }
-    }
-}
-
 // ─── Process Control Block ───────────────────────────────────────────────────
 
 /// Process Control Block — core data structure for each process.

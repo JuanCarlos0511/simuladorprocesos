@@ -47,6 +47,7 @@ export component AppWindow inherits Window {
     callback delete-process(int);
     callback request-edit(int);
     callback toggle-select(int);
+    callback exit-app();
 
     // ── Layout ───────────────────────────────────────────
 
@@ -150,7 +151,8 @@ export component AppWindow inherits Window {
             if SimState.current-screen > 0: Sidebar {
                 active-screen: SimState.current-screen;
                 navigate(screen) => {
-                    SimState.current-screen = screen;
+                    if screen == 99 { root.exit-app(); }
+                    else { SimState.current-screen = screen; }
                 }
             }
 

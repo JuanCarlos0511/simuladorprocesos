@@ -96,12 +96,9 @@ export component InitModal inherits Rectangle {
                             border-color: KernelColors.border-default;
 
                             proc-spin := SpinBox {
-                                value: root.num-processes;
+                                value <=> root.num-processes;
                                 minimum: 2;
                                 maximum: 50;
-                                changed(val) => {
-                                    root.num-processes = val;
-                                }
                             }
                         }
                     }
@@ -123,12 +120,9 @@ export component InitModal inherits Rectangle {
                             border-color: KernelColors.border-default;
 
                             mem-spin := SpinBox {
-                                value: root.memory-capacity;
+                                value <=> root.memory-capacity;
                                 minimum: 256;
                                 maximum: 8192;
-                                changed(val) => {
-                                    root.memory-capacity = val;
-                                }
                             }
                         }
                     }
@@ -184,13 +178,10 @@ export component InitModal inherits Rectangle {
                         opacity: root.algorithm-index == 3 ? 1.0 : 0.4;
 
                         quantum-spin := SpinBox {
-                            value: root.quantum-value;
+                            value <=> root.quantum-value;
                             minimum: 1;
                             maximum: 200;
                             enabled: root.algorithm-index == 3;
-                            changed(val) => {
-                                root.quantum-value = val;
-                            }
                         }
                     }
                 }

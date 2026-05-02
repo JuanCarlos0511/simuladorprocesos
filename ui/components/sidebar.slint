@@ -137,28 +137,21 @@ export component Sidebar inherits Rectangle {
         }
 
         SidebarItem {
-            label: "MEMORIA";
-            icon-text: "▦";
-            active: false;
-        }
-
-        SidebarItem {
-            label: "ESTADÍSTICAS CPU";
-            icon-text: "◈";
-            active: false;
-        }
-
-        SidebarItem {
-            label: "REGISTROS";
-            icon-text: "⊞";
-            active: false;
-        }
-
-        SidebarItem {
             label: "HISTORIAL (GANTT)";
             icon-text: "〰";
             active: active-screen == 3;
             clicked => { root.navigate(3); }
+        }
+
+        // Fill remaining space
+        Rectangle { }
+
+        // Exit button
+        SidebarItem {
+            label: "SALIR";
+            icon-text: "⏻";
+            active: false;
+            clicked => { root.navigate(99); }
         }
 
         // Fill remaining space

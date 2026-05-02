@@ -3,8 +3,8 @@
 // State badge with color and pulsating dot
 // ============================================
 
-import { KernelColors } from "../theme/colors.slint";
-import { KernelTypo } from "../theme/typography.slint";
+import { KernelColors } from "../../theme/colors.slint";
+import { KernelTypo } from "../../theme/typography.slint";
 
 export component HudBadge inherits Rectangle {
     // state: 0=New, 1=Ready, 2=Running, 3=Blocked, 4=Terminated
@@ -35,16 +35,11 @@ export component HudBadge inherits Rectangle {
         spacing: 5px;
         alignment: center;
 
-        // Pulsating dot for active states
         if state == 2 || state == 3: Rectangle {
             width: 6px;
             height: 6px;
             border-radius: 3px;
             background: state-color;
-            opacity: pulse-anim.running ? pulse-anim.value : 1.0;
-
-            pulse-anim := PropertyAnimation {
-            }
         }
 
         // Static dot for non-active states

@@ -6,7 +6,7 @@
 use rand::Rng;
 
 use crate::metrics::{self, SimulationMetrics};
-use crate::process::{PCB, ProcessState, IO_PROBABILITY, MIN_IO_BURST, MAX_IO_BURST, SYS_KERNEL_PID};
+use crate::process::{PCB, IO_PROBABILITY, MIN_IO_BURST, MAX_IO_BURST};
 use crate::scheduler::{Algorithm, GanttEntry, LogEntry, Scheduler};
 
 // ─── Simulation State ────────────────────────────────────────────────────────
@@ -247,11 +247,11 @@ impl SimulationEngine {
     /// Returns the timer interval in milliseconds based on current speed.
     pub fn timer_interval_ms(&self) -> u64 {
         match self.speed {
-            1 => 200,
-            2 => 100,
-            5 => 40,
-            10 => 20,
-            _ => 200,
+            1 => 1000,
+            2 => 500,
+            5 => 200,
+            10 => 100,
+            _ => 1000,
         }
     }
 

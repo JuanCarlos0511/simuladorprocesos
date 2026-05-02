@@ -201,7 +201,7 @@ fn main() -> Result<(), slint::PlatformError> {
         let ui_inner = ui_weak.clone();
         timer_clone.start(
             TimerMode::Repeated,
-            Duration::from_millis(200),
+            Duration::from_millis(1000),
             move || {
                 let mut sim_ref = sim_inner.borrow_mut();
                 if let Some(ref mut engine) = *sim_ref {
@@ -358,6 +358,11 @@ fn main() -> Result<(), slint::PlatformError> {
     // ── Toggle Select (for batch actions) ────────────────
     ui.on_toggle_select(move |_pid| {
         // Selection state is managed in the UI model for now
+    });
+
+    // ── Exit App ─────────────────────────────────────────
+    ui.on_exit_app(move || {
+        slint::quit_event_loop().unwrap();
     });
 
     ui.run()

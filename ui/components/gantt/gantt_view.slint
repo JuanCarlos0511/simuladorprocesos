@@ -105,7 +105,7 @@ export component GanttView inherits Rectangle {
                     HorizontalLayout {
                         spacing: 4px;
                         Text { text: Math.round(metrics.avg-waiting * 10) / 10; font-size: 28px; font-weight: 800; color: KernelColors.text-primary; }
-                        Text { text: "ms"; font-size: 14px; color: KernelColors.text-secondary; vertical-alignment: baseline; }
+                        Text { text: "ms"; font-size: 14px; color: KernelColors.text-secondary; vertical-alignment: bottom; }
                     }
                     Text {
                         text: (metrics.delta-waiting >= 0 ? "↑ " : "↓ ") + Math.round(Math.abs(metrics.delta-waiting) * 10) / 10 + "ms vs iteración anterior";
@@ -123,7 +123,7 @@ export component GanttView inherits Rectangle {
                     HorizontalLayout {
                         spacing: 4px;
                         Text { text: Math.round(metrics.avg-turnaround * 10) / 10; font-size: 28px; font-weight: 800; color: KernelColors.text-primary; }
-                        Text { text: "ms"; font-size: 14px; color: KernelColors.text-secondary; vertical-alignment: baseline; }
+                        Text { text: "ms"; font-size: 14px; color: KernelColors.text-secondary; vertical-alignment: bottom; }
                     }
                     Text {
                         text: (metrics.delta-turnaround >= 0 ? "↑ " : "↓ ") + Math.round(Math.abs(metrics.delta-turnaround) * 10) / 10 + "ms vs iteración anterior";

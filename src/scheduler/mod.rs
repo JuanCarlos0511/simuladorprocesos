@@ -12,7 +12,7 @@ pub mod srtf;
 
 use std::collections::VecDeque;
 
-use crate::process::{PCB, ProcessState, SYS_KERNEL_PID};
+use crate::process::{PCB, ProcessState};
 
 // ─── Algorithm Enum ──────────────────────────────────────────────────────────
 
@@ -74,6 +74,7 @@ pub trait SchedulingAlgorithm {
     }
 
     /// Display name for logging.
+    #[allow(dead_code)]
     fn name(&self) -> &'static str;
 }
 
@@ -101,6 +102,7 @@ pub struct Scheduler {
     /// The scheduling algorithm implementation.
     algorithm: Box<dyn SchedulingAlgorithm>,
     /// Algorithm enum value (for display purposes).
+    #[allow(dead_code)]
     pub algorithm_type: Algorithm,
     /// Quantum size in ticks (only used for Round Robin).
     pub quantum: u32,
@@ -349,6 +351,7 @@ impl Scheduler {
 
     /// Edits a process in the ready or blocked queue.
     pub fn edit_process(&mut self, pid: u32, name: String, burst: u32, priority: u8) {
+        let mut edited_pid_hex = None;
         for proc in self.ready_queue.iter_mut().chain(self.blocked_queue.iter_mut()) {
             if proc.pid == pid {
                 proc.name = name.clone();
@@ -363,9 +366,12 @@ impl Scheduler {
                     proc.remaining_time = burst;
                 }
                 proc.priority = priority;
-                self.log_event(format!("Proceso {} editado.", proc.pid_hex()));
-                return;
+                edited_pid_hex = Some(proc.pid_hex());
+                break;
             }
+        }
+        if let Some(pid_hex) = edited_pid_hex {
+            self.log_event(format!("Proceso {} editado.", pid_hex));
         }
     }
 

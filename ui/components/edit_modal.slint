@@ -73,7 +73,7 @@ export component EditModal inherits Rectangle {
                     Text { text: "CPU BURST (MS)"; font-size: 10px; font-weight: 700; color: KernelColors.text-secondary; letter-spacing: 1.5px; }
                     Rectangle {
                         height: 38px; background: KernelColors.bg-input; border-radius: 2px; border-width: 1px; border-color: KernelColors.border-default;
-                        SpinBox { value: root.process-burst; minimum: 1; maximum: 9999; changed(v) => { root.process-burst = v; } }
+                        SpinBox { value <=> root.process-burst; minimum: 1; maximum: 9999; }
                     }
                 }
 
