@@ -1,0 +1,36 @@
+import { KernelColors } from "../../theme/colors.slint";
+import { KernelTypo } from "../../theme/typography.slint";
+
+export component GanttBar inherits Rectangle {
+    in property <int> start-x: 0;
+    in property <int> bar-width: 0;
+    in property <int> duration: 0;
+    in property <int> color-idx: 0;
+
+    property <color> bar-color:
+        color-idx == 0 ? KernelColors.gantt-1 :
+        color-idx == 1 ? KernelColors.gantt-2 :
+        color-idx == 2 ? KernelColors.gantt-3 :
+        color-idx == 3 ? KernelColors.gantt-4 :
+        color-idx == 4 ? KernelColors.gantt-5 :
+        color-idx == 5 ? KernelColors.gantt-6 :
+        color-idx == 6 ? KernelColors.gantt-7 :
+        color-idx == 7 ? KernelColors.gantt-8 :
+        color-idx == 8 ? KernelColors.gantt-9 :
+        KernelColors.gantt-10;
+
+    height: 28px;
+    x: start-x * 1px;
+    width: Math.max(bar-width * 1px, 20px);
+    background: bar-color;
+    border-radius: 3px;
+
+    Text {
+        text: duration + "ms";
+        font-size: 10px;
+        font-weight: 700;
+        color: #000000;
+        horizontal-alignment: center;
+        vertical-alignment: center;
+    }
+}

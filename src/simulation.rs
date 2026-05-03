@@ -167,6 +167,29 @@ impl SimulationEngine {
         self.all_processes.is_empty()
     }
 
+    /// Dynamically add a custom process created by the user.
+    pub fn add_custom_process(&mut self, name: String, burst: u32, priority: u8, memory: f32) {
+        let pid = self.next_pid;
+        self.next_pid += 1;
+        
+        let pcb = PCB {
+            pid,
+            name,
+            state: crate::process::ProcessState::New,
+            burst_time: burst,
+            remaining_time: burst,
+            arrival_time: self.clock(),
+            priority,
+            memory_mb: memory,
+            io_burst: None,
+            finish_time: None,
+            turnaround_time: None,
+            waiting_time: None,
+        };
+        
+        self.scheduler.add_process(pcb);
+    }
+
     /// Random I/O event: 15% chance per tick for the running process.
     fn maybe_trigger_io(&mut self) {
         if let Some(ref proc) = self.scheduler.current_process {

@@ -1,0 +1,97 @@
+import { KernelColors } from "../../theme/colors.slint";
+import { KernelTypo } from "../../theme/typography.slint";
+import { HudCard } from "../common/hud_card.slint";
+import { HudButton } from "../common/hud_button.slint";
+import { HudSlider } from "../common/hud_slider.slint";
+import { LineEdit, SpinBox } from "std-widgets.slint";
+
+export component CreateModal inherits Rectangle {
+    in-out property <string> process-name: "Custom_Process";
+    in-out property <int> process-burst: 15;
+    in-out property <int> process-priority: 5;
+    in-out property <float> process-memory: 64.0;
+    
+    callback create(string, int, int, float);
+    callback cancel();
+
+    background: #000000cc;
+    TouchArea { clicked => { root.cancel(); } }
+
+    Rectangle {
+        width: 480px;
+        height: 480px;
+        x: (parent.width - self.width) / 2;
+        y: (parent.height - self.height) / 2;
+
+        HudCard {
+            width: 100%;
+            height: 100%;
+            show-corners: true;
+            corner-size: 18px;
+
+            TouchArea { }
+
+            VerticalLayout {
+                padding: 32px;
+                spacing: 20px;
+
+                HorizontalLayout {
+                    spacing: 12px;
+                    Rectangle {
+                        width: 36px; height: 36px;
+                        background: #38bdf820;
+                        border-radius: 4px;
+                        border-width: 1px;
+                        border-color: KernelColors.accent-cyan;
+                        Text { text: "⊕"; font-size: 22px; font-weight: 800; color: KernelColors.accent-cyan; horizontal-alignment: center; vertical-alignment: center; }
+                    }
+                    VerticalLayout {
+                        spacing: 2px;
+                        Text { text: "AÑADIR PROCESO MANUAL"; font-size: 18px; font-weight: 800; color: KernelColors.text-primary; letter-spacing: 1px; }
+                        Text { text: "Se añadirá al final de la cola de listos"; font-size: 12px; color: KernelColors.text-muted; }
+                    }
+                }
+
+                Rectangle { height: 1px; background: KernelColors.border-default; }
+
+                VerticalLayout {
+                    spacing: 6px;
+                    Text { text: "NOMBRE DEL PROCESO"; font-size: 10px; font-weight: 700; color: KernelColors.text-secondary; letter-spacing: 1.5px; }
+                    Rectangle {
+                        height: 38px; background: KernelColors.bg-input; border-radius: 2px; border-width: 1px; border-color: KernelColors.border-default;
+                        LineEdit { text: root.process-name; font-size: 14px; edited(t) => { root.process-name = t; } }
+                    }
+                }
+
+                HorizontalLayout {
+                    spacing: 16px;
+                    VerticalLayout {
+                        spacing: 6px;
+                        Text { text: "RÁFAGA CPU (MS)"; font-size: 10px; font-weight: 700; color: KernelColors.text-secondary; letter-spacing: 1.5px; }
+                        Rectangle {
+                            height: 38px; background: KernelColors.bg-input; border-radius: 2px; border-width: 1px; border-color: KernelColors.border-default;
+                            SpinBox { value <=> root.process-burst; minimum: 1; maximum: 9999; }
+                        }
+                    }
+                    VerticalLayout {
+                        spacing: 6px;
+                        Text { text: "MEMORIA (MB)"; font-size: 10px; font-weight: 700; color: KernelColors.text-secondary; letter-spacing: 1.5px; }
+                        Rectangle {
+                            height: 38px; background: KernelColors.bg-input; border-radius: 2px; border-width: 1px; border-color: KernelColors.border-default;
+                            // Slint's SpinBox only handles ints. We'll use ints for UI memory size in MB to simplify.
+                            mem_spin := SpinBox { value: 64; minimum: 1; maximum: 8192; edited => { root.process-memory = self.value; } }
+                        }
+                    }
+                }
+
+                HudSlider { label: "NIVEL DE PRIORIDAD (1-10)"; value: root.process-priority; min-val: 1; max-val: 10; changed(v) => { root.process-priority = Math.round(v); } }
+
+                HorizontalLayout {
+                    spacing: 12px; alignment: end;
+                    HudButton { text: "CANCELAR"; width: 120px; clicked => { root.cancel(); } }
+                    HudButton { text: "AÑADIR AL KERNEL"; width: 180px; primary: true; clicked => { root.create(root.process-name, root.process-burst, root.process-priority, root.process-memory); } }
+                }
+            }
+        }
+    }
+}

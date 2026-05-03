@@ -347,6 +347,23 @@ fn main() -> Result<(), slint::PlatformError> {
 
     let sim_clone = sim.clone();
     let ui_weak = ui.as_weak();
+    ui.on_create_process(move |name, burst, priority, memory| {
+        let mut sim_ref = sim_clone.borrow_mut();
+        if let Some(ref mut engine) = *sim_ref {
+            engine.add_custom_process(
+                name.to_string(),
+                burst as u32,
+                priority as u8,
+                memory,
+            );
+            if let Some(ui) = ui_weak.upgrade() {
+                update_ui(&ui, engine);
+            }
+        }
+    });
+
+    let sim_clone = sim.clone();
+    let ui_weak = ui.as_weak();
     ui.on_delete_process(move |pid| {
         let mut sim_ref = sim_clone.borrow_mut();
         if let Some(ref mut engine) = *sim_ref {

@@ -1,0 +1,43 @@
+import { KernelColors } from "../../theme/colors.slint";
+import { KernelTypo } from "../../theme/typography.slint";
+
+export component QueueItem inherits Rectangle {
+    in property <string> pid-hex: "";
+    in property <int> remaining: 0;
+
+    height: 36px;
+    background: KernelColors.bg-elevated;
+    border-radius: 2px;
+    border-width: 1px;
+    border-color: KernelColors.border-default;
+
+    HorizontalLayout {
+        padding-left: 10px;
+        padding-right: 10px;
+        spacing: 8px;
+
+        Text {
+            text: "▪";
+            font-size: KernelTypo.size-sm;
+            color: KernelColors.text-muted;
+            vertical-alignment: center;
+        }
+
+        Text {
+            text: "PID: " + pid-hex;
+            font-size: KernelTypo.size-sm;
+            color: KernelColors.text-primary;
+            vertical-alignment: center;
+        }
+
+        Rectangle { } // spacer
+
+        Text {
+            text: "BT: " + remaining + "ms";
+            font-size: KernelTypo.size-sm;
+            font-weight: 600;
+            color: KernelColors.accent-cyan;
+            vertical-alignment: center;
+        }
+    }
+}

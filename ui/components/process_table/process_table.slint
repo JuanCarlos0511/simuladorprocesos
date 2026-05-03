@@ -9,6 +9,7 @@ import { SimState } from "../../globals.slint";
 import { ProcessItem } from "../../structs.slint";
 import { HudButton } from "../common/hud_button.slint";
 import { HudBadge } from "../common/hud_badge.slint";
+import { TableRow } from "table_row.slint";
 import { ScrollView } from "std-widgets.slint";
 
 export component ProcessTable inherits Rectangle {
@@ -49,10 +50,20 @@ export component ProcessTable inherits Rectangle {
             }
         }
 
-        // Batch actions
+        // Actions
         HorizontalLayout {
             spacing: 12px;
             height: 40px;
+            
+            HudButton {
+                text: "⊕ AÑADIR PROCESO";
+                height: 32px;
+                min-width: 140px;
+                primary: true;
+                clicked => { SimState.show-create-modal = true; }
+            }
+
+            Rectangle { width: 12px; }
 
             Text {
                 text: "ACCIONES LOTE:";
@@ -204,155 +215,11 @@ export component ProcessTable inherits Rectangle {
                     VerticalLayout {
                         spacing: 0;
 
-                        for proc[idx] in processes: Rectangle {
-                            height: 52px;
-                            background: touch-row.has-hover ? KernelColors.bg-hover : transparent;
-                            animate background { duration: 100ms; }
-
-                            // Row border
-                            Rectangle {
-                                y: parent.height - 1px;
-                                height: 1px;
-                                background: KernelColors.border-default;
-                            }
-
-                            touch-row := TouchArea {
-                                mouse-cursor: pointer;
-                            }
-
-                            HorizontalLayout {
-                                padding-left: 16px;
-                                padding-right: 16px;
-                                spacing: 0;
-
-                                // Checkbox
-                                Rectangle {
-                                    width: 40px;
-                                    Rectangle {
-                                        width: 18px;
-                                        height: 18px;
-                                        y: (parent.height - 18px) / 2;
-                                        border-width: 1px;
-                                        border-color: proc.selected ? KernelColors.accent-cyan : KernelColors.border-default;
-                                        border-radius: 2px;
-                                        background: proc.selected ? #38bdf830 : transparent;
-
-                                        if proc.selected: Text {
-                                            text: "✓";
-                                            font-size: KernelTypo.size-xs;
-                                            color: KernelColors.accent-cyan;
-                                            horizontal-alignment: center;
-                                            vertical-alignment: center;
-                                        }
-
-                                        TouchArea {
-                                            mouse-cursor: pointer;
-                                            clicked => { root.toggle-select(proc.pid); }
-                                        }
-                                    }
-                                }
-
-                                // PID
-                                Rectangle {
-                                    width: 80px;
-                                    Text {
-                                        text: proc.pid-hex;
-                                        font-size: KernelTypo.size-sm;
-                                        font-weight: 700;
-                                        color: proc.state == 4 ? KernelColors.text-muted : KernelColors.text-primary;
-                                        vertical-alignment: center;
-                                    }
-                                }
-
-                                // Name
-                                Rectangle {
-                                    width: 160px;
-                                    Text {
-                                        text: proc.name;
-                                        font-size: KernelTypo.size-sm;
-                                        color: proc.state == 4 ? KernelColors.text-muted : KernelColors.text-primary;
-                                        vertical-alignment: center;
-                                        overflow: elide;
-                                    }
-                                }
-
-                                // State badge
-                                Rectangle {
-                                    width: 110px;
-                                    HudBadge {
-                                        state: proc.state;
-                                    }
-                                }
-
-                                // Priority
-                                Rectangle {
-                                    width: 100px;
-                                    Text {
-                                        text: proc.priority + " (" + proc.priority-label + ")";
-                                        font-size: KernelTypo.size-sm;
-                                        color: proc.state == 4 ? KernelColors.text-muted : KernelColors.text-secondary;
-                                        vertical-alignment: center;
-                                    }
-                                }
-
-                                // Arrival time
-                                Rectangle {
-                                    width: 80px;
-                                    Text {
-                                        text: proc.arrival-time + "ms";
-                                        font-size: KernelTypo.size-sm;
-                                        color: KernelColors.text-secondary;
-                                        vertical-alignment: center;
-                                    }
-                                }
-
-                                // Burst time
-                                Rectangle {
-                                    width: 80px;
-                                    Text {
-                                        text: proc.burst-time + "ms";
-                                        font-size: KernelTypo.size-sm;
-                                        color: KernelColors.text-secondary;
-                                        vertical-alignment: center;
-                                    }
-                                }
-
-                                // Memory
-                                Rectangle {
-                                    width: 80px;
-                                    Text {
-                                        text: Math.round(proc.memory-mb * 10) / 10;
-                                        font-size: KernelTypo.size-sm;
-                                        color: KernelColors.text-secondary;
-                                        vertical-alignment: center;
-                                    }
-                                }
-
-                                // Actions
-                                Rectangle {
-                                    HorizontalLayout {
-                                        spacing: 6px;
-                                        alignment: start;
-
-                                        HudButton {
-                                            text: "✎ EDITAR";
-                                            height: 30px;
-                                            min-width: 80px;
-                                            primary: true;
-                                            enabled: proc.state != 4;
-                                            clicked => { root.edit-process(proc.pid); }
-                                        }
-
-                                        HudButton {
-                                            text: "✕";
-                                            height: 30px;
-                                            min-width: 36px;
-                                            enabled: proc.state != 4;
-                                            clicked => { root.delete-process(proc.pid); }
-                                        }
-                                    }
-                                }
-                            }
+                        for proc[idx] in processes: TableRow {
+                            proc: proc;
+                            toggle-select => { root.toggle-select(proc.pid); }
+                            edit-process => { root.edit-process(proc.pid); }
+                            delete-process => { root.delete-process(proc.pid); }
                         }
                     }
                 }

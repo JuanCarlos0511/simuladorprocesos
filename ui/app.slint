@@ -14,6 +14,7 @@ import { Dashboard } from "components/dashboard/dashboard.slint";
 import { Sidebar } from "components/sidebar.slint";
 import { ProcessTable } from "components/process_table/process_table.slint";
 import { EditModal } from "components/edit_modal.slint";
+import { CreateModal } from "components/process_table/create_modal.slint";
 import { GanttView } from "components/gantt/gantt_view.slint";
 
 export { SimState }
@@ -44,6 +45,7 @@ export component AppWindow inherits Window {
     callback reset-simulation();
     callback change-speed(int);
     callback edit-process(int, string, int, int);
+    callback create-process(string, int, int, float);
     callback delete-process(int);
     callback request-edit(int);
     callback toggle-select(int);
@@ -223,5 +225,14 @@ export component AppWindow inherits Window {
             SimState.show-edit-modal = false;
         }
         cancel => { SimState.show-edit-modal = false; }
+    }
+
+    // Create Modal
+    if SimState.show-create-modal: CreateModal {
+        create(name, burst, priority, mem) => {
+            root.create-process(name, burst, priority, mem);
+            SimState.show-create-modal = false;
+        }
+        cancel => { SimState.show-create-modal = false; }
     }
 }
