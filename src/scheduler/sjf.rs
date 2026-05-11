@@ -16,16 +16,16 @@ impl SchedulingAlgorithm for Sjf {
             return None;
         }
 
-        // Find the process with the shortest burst time (skip kernel daemon)
+        // Find the process with the shortest estimated burst time (skip kernel daemon)
         let mut best_idx: Option<usize> = None;
-        let mut best_burst = u32::MAX;
+        let mut best_estimate = f32::MAX;
 
         for (i, proc) in ready_queue.iter().enumerate() {
             if proc.is_kernel_daemon() {
                 continue;
             }
-            if proc.remaining_time < best_burst {
-                best_burst = proc.remaining_time;
+            if proc.estimated_burst < best_estimate {
+                best_estimate = proc.estimated_burst;
                 best_idx = Some(i);
             }
         }

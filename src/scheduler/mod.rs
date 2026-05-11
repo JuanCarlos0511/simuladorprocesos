@@ -190,8 +190,14 @@ impl Scheduler {
 
             // Check if process finished
             if proc.remaining_time == 0 && !proc.is_kernel_daemon() {
+                let actual_burst = if let Some(start) = self.gantt_segment_start {
+                    self.clock.saturating_sub(start)
+                } else {
+                    0
+                };
                 self.finish_current_gantt_segment();
                 let mut finished = self.current_process.take().unwrap();
+                finished.update_estimation(0.5, actual_burst);
                 finished.terminate(self.clock);
                 self.log_event(format!(
                     "Proceso {} finalizado. Estado: Terminado. Memoria liberada: {}MB",
@@ -256,8 +262,18 @@ impl Scheduler {
 
     /// Moves the current process to the blocked queue for I/O.
     pub fn block_current_for_io(&mut self, io_duration: u32) {
+        let actual_burst = if let Some(start) = self.gantt_segment_start {
+            self.clock.saturating_sub(start)
+        } else {
+            0
+        };
+
+        self.finish_current_gantt_segment();
+        
         if let Some(mut proc) = self.current_process.take() {
-            self.finish_current_gantt_segment();
+            if !proc.is_kernel_daemon() {
+                proc.update_estimation(0.5, actual_burst);
+            }
             proc.state = ProcessState::Blocked;
             proc.io_burst = Some(io_duration);
             self.log_event(format!(
@@ -271,8 +287,18 @@ impl Scheduler {
 
     /// Preempts the current process, moving it back to the ready queue.
     fn preempt_current(&mut self, reason: &str) {
+        let actual_burst = if let Some(start) = self.gantt_segment_start {
+            self.clock.saturating_sub(start)
+        } else {
+            0
+        };
+
+        self.finish_current_gantt_segment();
+        
         if let Some(mut proc) = self.current_process.take() {
-            self.finish_current_gantt_segment();
+            if !proc.is_kernel_daemon() {
+                proc.update_estimation(0.5, actual_burst);
+            }
             let pid_hex = proc.pid_hex();
             proc.state = ProcessState::Ready;
             self.ready_queue.push_back(proc);

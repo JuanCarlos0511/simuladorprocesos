@@ -43,6 +43,10 @@ pub struct PCB {
     pub memory_mb: f32,
     /// Remaining I/O burst time, if process is blocked.
     pub io_burst: Option<u32>,
+    /// Estimated burst time for SJF prediction
+    pub estimated_burst: f32,
+    /// Actual duration of the last CPU burst
+    pub last_burst_actual: u32,
     /// Time when the process finished execution.
     pub finish_time: Option<u32>,
     /// Turnaround time (finish_time - arrival_time).
@@ -67,6 +71,8 @@ impl PCB {
             priority: 0,
             memory_mb: 124.5,
             io_burst: None,
+            estimated_burst: f32::MAX,
+            last_burst_actual: u32::MAX,
             finish_time: None,
             turnaround_time: None,
             waiting_time: None,
@@ -90,6 +96,8 @@ impl PCB {
             priority,
             memory_mb: memory,
             io_burst: None,
+            estimated_burst: 10.0, // Valor inicial arbitrario (tau_0) para todos los procesos
+            last_burst_actual: 0, // Aún no ha corrido en la CPU
             finish_time: None,
             turnaround_time: None,
             waiting_time: None,
@@ -126,6 +134,12 @@ impl PCB {
                 .saturating_sub(self.arrival_time)
                 .saturating_sub(self.burst_time),
         );
+    }
+
+    /// Updates the burst estimation using exponential averaging.
+    pub fn update_estimation(&mut self, alpha: f32, actual_burst: u32) {
+        self.last_burst_actual = actual_burst;
+        self.estimated_burst = alpha * (actual_burst as f32) + (1.0 - alpha) * self.estimated_burst;
     }
 }
 

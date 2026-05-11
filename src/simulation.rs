@@ -182,6 +182,8 @@ impl SimulationEngine {
             priority,
             memory_mb: memory,
             io_burst: None,
+            estimated_burst: 10.0,
+            last_burst_actual: 0,
             finish_time: None,
             turnaround_time: None,
             waiting_time: None,
