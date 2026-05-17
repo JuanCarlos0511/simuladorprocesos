@@ -17,6 +17,70 @@ Un simulador básico de un gestor de procesos desarrollado en Rust que emula el 
 
 ## Estructura del Repositorio
 ```text
+simuladorprocesos/
+├── docs/                       # Documentación y especificaciones
+│   ├── reference_images/       # Capturas de pantalla de la interfaz
+│   │   ├── image copy 2.png
+│   │   ├── image copy 3.png
+│   │   ├── image copy 4.png
+│   │   ├── image copy.png
+│   │   └── image.png
+│   └── coding_standards.md     # Estándares de desarrollo de código
+├── src/                        # Código fuente del Backend (Rust)
+│   ├── constants/              # Constantes globales del sistema
+│   │   └── mod.rs
+│   ├── scheduler/              # Algoritmos de planificación de CPU
+│   │   ├── fcfs.rs
+│   │   ├── mod.rs
+│   │   ├── priority_preemptive.rs
+│   │   ├── round_robin.rs
+│   │   └── sjf.rs
+│   ├── utils/                  # Herramientas de utilidad y pruebas
+│   │   ├── mod.rs
+│   │   └── test_helpers.rs
+│   ├── main.rs                 # Punto de entrada de la aplicación
+│   ├── metrics.rs              # Lógica de cálculo de tiempos del sistema
+│   ├── process.rs              # Estructura del Bloque de Control de Procesos (PCB)
+│   └── simulation.rs           # Controlador del ciclo de simulación
+├── target/                     # Archivos de compilación e intermediarios
+│   ├── debug/                  # Binarios de depuración
+│   ├── release/                # Binarios optimizados
+│   └── .rustc_info.json        # Información del compilador de Rust
+├── ui/                         # Código fuente del Frontend (Slint)
+│   ├── components/             # Interfaces modulares y vistas
+│   │   ├── common/             # Elementos de estilo HUD base
+│   │   │   ├── hud_badge.slint
+│   │   │   ├── hud_button.slint
+│   │   │   ├── hud_card.slint
+│   │   │   ├── hud_input.slint
+│   │   │   └── hud_slider.slint
+│   │   ├── dashboard/          # Contenedores métricos y colas
+│   │   │   ├── dashboard.slint
+│   │   │   ├── metric_card.slint
+│   │   │   └── queue_item.slint
+│   │   ├── gantt/              # Componentes de la gráfica de Gantt
+│   │   │   ├── gantt_bar.slint
+│   │   │   └── gantt_view.slint
+│   │   ├── process_table/      # Tablas de administración de procesos
+│   │   │   ├── create_modal.slint
+│   │   │   ├── process_table.slint
+│   │   │   └── table_row.slint
+│   │   ├── edit_modal.slint    # Modal para modificar procesos
+│   │   ├── init_modal.slint    # Modal de configuración inicial
+│   │   └── sidebar.slint       # Panel de control lateral
+│   ├── theme/                  # Estilos visuales generales
+│   │   ├── colors.slint        # Paleta de colores (Modo Oscuro)
+│   │   └── typography.slint    # Fuentes y tamaños tipográficos
+│   ├── app.slint               # Ventana principal del entorno gráfico
+│   ├── globals.slint           # Callbacks y propiedades globales de la interfaz
+│   └── structs.slint           # Modelos de datos compartidos UI-Rust
+├── .gitignore                  # Exclusiones de seguimiento de Git
+├── Cargo.lock                  # Registro exacto de versiones de dependencias
+├── Cargo.toml                  # Archivo de configuración del proyecto Cargo
+├── README.md                   # Documentación principal del repositorio
+├── build.rs                    # Script de compilación nativa de Rust
+├── build_helper.bat            # Script de asistencia para compilación en Windows
+└── env_check.bat               # Script de verificación de entorno de desarrollo
 
 ```
 ## 🛠️ Características Principales
