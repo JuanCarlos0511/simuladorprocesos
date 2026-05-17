@@ -1,7 +1,21 @@
-# KERNEL_OS — Simulador de Gestión de Procesos
+# Simulador de Gestor de Procesos para Sistemas Operativos
 
-Aplicación de escritorio nativa que simula la gestión de procesos de un sistema operativo con interfaz visual estilo cyberpunk/terminal de kernel.
+## Descripción del Proyecto
+Un simulador básico de un gestor de procesos desarrollado en Rust que emula el comportamiento de un sistema operativo al administrar múltiples procesos y recursos.
 
+## Información del Curso
+* **Materia:** Sistemas Operativos
+* **Institución:** Universidad Autónoma de Tamaulipas
+* **Semestre:** Periodo 2026-1 (Grupo 6 K)
+* **Profesor(es):** Muñoz Quintero Dante Adolfo
+
+## Integrantes del Equipo
+* Hernández Del Angel José Ismael
+* Hernández Torres José Leonardo
+* Guzmán Antonio Juan Carlos
+* Blanco Alejandre Eder Gael
+
+## Estructura del Repositorio
 ## Características
 
 - **6 algoritmos de planificación**: FCFS, SJF, SRTF, Round Robin, Prioridad, Prioridad Preemptiva
@@ -107,4 +121,4 @@ simuladorprocesos/
 
 ## Licencia
 
-Uso educativo.
+Uso educativo.
