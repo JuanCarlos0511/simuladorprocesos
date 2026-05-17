@@ -5,7 +5,7 @@
 
 use std::collections::VecDeque;
 
-use crate::process::PCB;
+use crate::core::process::PCB;
 use super::SchedulingAlgorithm;
 
 pub struct Sjf;
@@ -42,7 +42,7 @@ impl SchedulingAlgorithm for Sjf {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::utils::test_helpers::make_pcb;
+    use crate::core::scheduler::test_helpers::make_pcb;
 
     #[test]
     fn selects_shortest_burst() {

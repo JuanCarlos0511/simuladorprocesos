@@ -10,7 +10,50 @@ pub mod sjf;
 
 use std::collections::VecDeque;
 
-use crate::process::{PCB, ProcessState};
+use crate::core::process::{PCB, ProcessState};
+
+// ─── Test Helpers ────────────────────────────────────────────────────────────
+
+#[cfg(test)]
+pub(crate) mod test_helpers {
+    use crate::core::process::{PCB, ProcessState};
+
+    /// Creates a standard PCB for unit testing algorithms.
+    pub fn make_pcb(pid: u32, burst: u32) -> PCB {
+        PCB {
+            pid,
+            name: format!("P{}", pid),
+            state: ProcessState::Ready,
+            burst_time: burst,
+            remaining_time: burst,
+            arrival_time: 0,
+            priority: 5,
+            memory_mb: 64.0,
+            io_burst: None,
+            finish_time: None,
+            turnaround_time: None,
+            waiting_time: None,
+        }
+    }
+
+    /// Creates a standard PCB with a specific priority for priority-based algorithms.
+    pub fn make_pcb_with_priority(pid: u32, priority: u8) -> PCB {
+        PCB {
+            pid,
+            name: format!("P{}", pid),
+            state: ProcessState::Ready,
+            burst_time: 10,
+            remaining_time: 10,
+            arrival_time: 0,
+            priority,
+            memory_mb: 64.0,
+            io_burst: None,
+            finish_time: None,
+            turnaround_time: None,
+            waiting_time: None,
+        }
+    }
+}
 
 // ─── Algorithm Enum ──────────────────────────────────────────────────────────
 
@@ -144,6 +187,16 @@ impl Scheduler {
             sys_log: Vec::new(),
             gantt_segment_start: None,
             idle_ticks: 0,
+        }
+    }
+
+    /// Convenience method: returns the next process from the ready queue
+    /// using the configured scheduling algorithm, removing it from the queue.
+    pub fn next_process(&mut self) -> Option<PCB> {
+        if let Some(idx) = self.algorithm.select_next(&self.ready_queue) {
+            self.ready_queue.remove(idx)
+        } else {
+            None
         }
     }
 

@@ -61,29 +61,50 @@ cargo run
 
 ```
 simuladorprocesos/
-├── Cargo.toml          # Dependencias y configuración
-├── build.rs            # Compilador de archivos .slint
-├── src/                # Código Rust
-│   ├── main.rs         # Entry point, Timer, bridge UI↔Logic
-│   ├── process.rs      # PCB, ProcessState, generación
-│   ├── metrics.rs      # Cálculos de métricas
-│   ├── simulation.rs   # Motor de simulación
-│   └── scheduler/      # Algoritmos de planificación
-│       ├── mod.rs      # Trait + Scheduler
-│       ├── fcfs.rs
-│       ├── sjf.rs
-│       ├── srtf.rs
-│       ├── round_robin.rs
-│       ├── priority.rs
-│       └── priority_preemptive.rs
-└── ui/                 # Interfaz Slint
-    ├── app.slint       # Ventana principal
-    ├── theme/          # Paleta y tipografía
-    ├── structs.slint   # Structs compartidos
-    ├── globals.slint   # Estado global
-    └── components/     # Componentes visuales
+├── docs/                       # Documentación y especificaciones
+│   ├── reference_images/       # Capturas de pantalla de la interfaz
+│   └── coding_standards.md     # Estándares de desarrollo de código
+├── src/                        # Capa de Software (Backend Computacional en Rust)
+│   ├── constants/              # Constantes y parámetros globales del sistema
+│   │   └── mod.rs
+│   ├── core/                   # Módulo Núcleo: Orquestación del Sistema Operativo
+│   │   ├── mod.rs              # Exportación y visibilidad del núcleo
+│   │   ├── process.rs          # Bloque de Control de Procesos (PCB) y transiciones de estado
+│   │   ├── resource.rs         # Pool y control de asignación de CPU y 4 GB de memoria RAM
+│   │   └── scheduler.rs        # Algoritmos de planificación (FCFS, SJF, RR, Prioridad)
+│   ├── ipc/                    # Módulo IPC: Sincronización y Comunicación Concurrente
+│   │   ├── mod.rs              # Exportación de primitivas de sincronización
+│   │   ├── channel.rs          # Paso de mensajes asíncronos mediante canales (mpsc)
+│   │   └── semaphore.rs        # Control de exclusión mutua mediante Mutex y Condvar
+│   ├── ui/                     # Capa de Interfaz y Registro Exigida por Rúbrica
+│   │   ├── mod.rs              # Exportación de la interfaz de soporte
+│   │   ├── cli.rs              # Menú interactivo CLI de consola (Requisito del sistema)
+│   │   └── logger.rs           # Sistema de logs cronológicos de eventos del simulador
+│   ├── lib.rs                  # Archivo de biblioteca para reexportar los módulos públicos
+│   └── main.rs                 # Punto de entrada principal y arranque coordinado
+├── tests/                      # Pruebas de Integración de Caja Negra (Obligatorio)
+│   ├── ipc_tests.rs            # Validación de canales y semáforos concurrentes
+│   ├── resource_tests.rs       # Pruebas de límites de asignación de hardware
+│   └── scheduler_tests.rs      # Certificación de cálculo de tiempos por algoritmo
+├── examples/                   # Casos de Uso Demostrativos Ejecutables (Obligatorio)
+│   ├── productor_consumidor.rs # Simulación del problema clásico con semáforos
+│   └── round_robin_demo.rs     # Script aislado demostrativo de ráfagas temporales
+├── benches/                    # Pruebas de Rendimiento y Carga
+│   └── scheduler_bench.rs      # Análisis de latencia de las colas de planificación
+├── ui/                         # Frontend Avanzado (Código nativo de Slint UI)
+│   ├── components/             # Modales, Dashboard, barras y tablas de la interfaz
+│   ├── theme/                  # Paleta de colores HUD (Modo Oscuro) y fuentes
+│   ├── app.slint               # Ventana principal del entorno gráfico
+│   ├── globals.slint           # Callbacks y propiedades globales de la interfaz
+│   └── structs.slint           # Modelos de datos compartidos de la UI con Rust
+├── .gitignore                  # Exclusiones de Git (Previene el rastreo de target/)
+├── build.rs                    # Script de enlace de compilación nativa Rust-Slint
+├── build_helper.bat            # Script de asistencia para compilación en Windows
+├── Cargo.lock                  # Registro estricto de control de versiones de crates
+├── Cargo.toml                  # Configuración del proyecto de Cargo
+└── env_check.bat               # Verificador de dependencias del entorno local
 ```
 
 ## Licencia
 
-Uso educativo.
+Uso educativo.

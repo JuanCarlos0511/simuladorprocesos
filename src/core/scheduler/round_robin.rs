@@ -1,16 +1,17 @@
-/// FCFS (First-Come, First-Served) scheduling algorithm.
+/// Round Robin scheduling algorithm.
 ///
-/// Selects the first process in the ready queue (FIFO order).
-/// Non-preemptive: once a process starts, it runs until completion or I/O.
+/// Selects the first process in the ready queue (FIFO). The process runs
+/// for at most `quantum` ticks before being preempted and sent to the
+/// back of the queue. Quantum management is handled by the Scheduler.
 
 use std::collections::VecDeque;
 
-use crate::process::PCB;
+use crate::core::process::PCB;
 use super::SchedulingAlgorithm;
 
-pub struct Fcfs;
+pub struct RoundRobin;
 
-impl SchedulingAlgorithm for Fcfs {
+impl SchedulingAlgorithm for RoundRobin {
     fn select_next(&self, ready_queue: &VecDeque<PCB>) -> Option<usize> {
         if ready_queue.is_empty() {
             None
@@ -23,30 +24,32 @@ impl SchedulingAlgorithm for Fcfs {
         }
     }
 
+    fn uses_quantum(&self) -> bool {
+        true
+    }
+
     fn name(&self) -> &'static str {
-        "FCFS"
+        "Round Robin"
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::utils::test_helpers::make_pcb;
+    use crate::core::scheduler::test_helpers::make_pcb;
 
     #[test]
     fn selects_first_in_queue() {
-        let algo = Fcfs;
+        let algo = RoundRobin;
         let mut queue = VecDeque::new();
         queue.push_back(make_pcb(1, 10));
         queue.push_back(make_pcb(2, 5));
-        queue.push_back(make_pcb(3, 20));
         assert_eq!(algo.select_next(&queue), Some(0));
     }
 
     #[test]
-    fn empty_queue_returns_none() {
-        let algo = Fcfs;
-        let queue = VecDeque::new();
-        assert_eq!(algo.select_next(&queue), None);
+    fn uses_quantum_flag() {
+        let algo = RoundRobin;
+        assert!(algo.uses_quantum());
     }
 }

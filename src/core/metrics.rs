@@ -3,7 +3,7 @@
 /// Computes aggregate statistics (CPU utilization, average waiting/turnaround
 /// times) from the list of terminated processes and the total simulation clock.
 
-use crate::process::PCB;
+use crate::core::process::PCB;
 
 /// Aggregate simulation metrics computed after a simulation run.
 #[derive(Debug, Clone)]
@@ -99,7 +99,7 @@ pub fn calculate_metrics(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::process::ProcessState;
+    use crate::core::process::ProcessState;
 
     fn make_terminated(arrival: u32, burst: u32, finish: u32) -> PCB {
         let pcb = PCB {

@@ -127,6 +127,32 @@ impl PCB {
                 .saturating_sub(self.burst_time),
         );
     }
+
+    /// Validates and performs a state transition.
+    ///
+    /// Returns `Ok(())` if the transition is legal, or `Err(String)` with
+    /// a description of why the transition is invalid.
+    pub fn transition(&mut self, next: ProcessState) -> Result<(), String> {
+        let valid = match (self.state, next) {
+            (ProcessState::New, ProcessState::Ready) => true,
+            (ProcessState::Ready, ProcessState::Running) => true,
+            (ProcessState::Running, ProcessState::Ready) => true,      // preemption
+            (ProcessState::Running, ProcessState::Blocked) => true,    // I/O wait
+            (ProcessState::Running, ProcessState::Terminated) => true, // completion
+            (ProcessState::Blocked, ProcessState::Ready) => true,      // I/O done
+            _ => false,
+        };
+
+        if valid {
+            self.state = next;
+            Ok(())
+        } else {
+            Err(format!(
+                "Transición ilegal: {:?} -> {:?} para proceso {}",
+                self.state, next, self.pid_hex()
+            ))
+        }
+    }
 }
 
 // ─── Process Name Pool ───────────────────────────────────────────────────────
@@ -208,5 +234,22 @@ mod tests {
         assert_eq!(pcb.finish_time, Some(20));
         assert_eq!(pcb.turnaround_time, Some(15)); // 20 - 5
         assert_eq!(pcb.waiting_time, Some(5));      // 15 - 10
+    }
+
+    #[test]
+    fn valid_transitions_succeed() {
+        let mut pcb = PCB::new_kernel_daemon();
+        pcb.state = ProcessState::New;
+        assert!(pcb.transition(ProcessState::Ready).is_ok());
+        assert!(pcb.transition(ProcessState::Running).is_ok());
+        assert!(pcb.transition(ProcessState::Terminated).is_ok());
+    }
+
+    #[test]
+    fn invalid_transitions_fail() {
+        let mut pcb = PCB::new_kernel_daemon();
+        pcb.state = ProcessState::New;
+        assert!(pcb.transition(ProcessState::Running).is_err());
+        assert!(pcb.transition(ProcessState::Terminated).is_err());
     }
 }

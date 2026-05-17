@@ -6,7 +6,7 @@
 
 use std::collections::VecDeque;
 
-use crate::process::PCB;
+use crate::core::process::PCB;
 use super::SchedulingAlgorithm;
 
 pub struct PriorityPreemptive;
@@ -37,8 +37,6 @@ impl SchedulingAlgorithm for PriorityPreemptive {
         if current.is_kernel_daemon() {
             return ready_queue.iter().any(|p| !p.is_kernel_daemon());
         }
-
-        // Check if any process in ready queue has higher priority (lower number)
         ready_queue
             .iter()
             .filter(|p| !p.is_kernel_daemon())
@@ -53,15 +51,14 @@ impl SchedulingAlgorithm for PriorityPreemptive {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::utils::test_helpers::make_pcb_with_priority as make_pcb;
+    use crate::core::scheduler::test_helpers::make_pcb_with_priority as make_pcb;
 
     #[test]
     fn preempts_for_higher_priority() {
         let algo = PriorityPreemptive;
         let current = make_pcb(1, 5);
         let mut queue = VecDeque::new();
-        queue.push_back(make_pcb(2, 2)); // higher priority
-
+        queue.push_back(make_pcb(2, 2));
         assert!(algo.should_preempt(&current, &queue));
     }
 
@@ -70,8 +67,7 @@ mod tests {
         let algo = PriorityPreemptive;
         let current = make_pcb(1, 2);
         let mut queue = VecDeque::new();
-        queue.push_back(make_pcb(2, 8)); // lower priority
-
+        queue.push_back(make_pcb(2, 8));
         assert!(!algo.should_preempt(&current, &queue));
     }
 }

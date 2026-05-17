@@ -2,13 +2,7 @@
 ///
 /// Entry point: initializes the Slint UI, connects callbacks to the
 /// simulation engine, and runs the main event loop with a Timer.
-
-mod metrics;
-mod process;
-mod scheduler;
-mod simulation;
-mod utils;
-mod constants;
+/// Supports --cli flag for interactive console mode.
 
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -16,12 +10,18 @@ use std::time::Duration;
 
 use slint::{ModelRc, SharedString, Timer, TimerMode, VecModel};
 
+// Import from the library crate (3-layer architecture)
+use simulador_procesos::core::process::PCB;
+use simulador_procesos::core::scheduler::{Algorithm, GanttEntry, LogEntry};
+use simulador_procesos::core::simulation::{SimulationEngine, SimConfig, SimState as EngineState};
+use simulador_procesos::core::metrics;
+
 slint::include_modules!();
 
 // ─── Type Conversion Helpers ─────────────────────────────────────────────────
 
 /// Converts a Rust PCB to a Slint ProcessItem struct.
-fn pcb_to_slint(pcb: &process::PCB) -> ProcessItem {
+fn pcb_to_slint(pcb: &PCB) -> ProcessItem {
     ProcessItem {
         pid: pcb.pid as i32,
         pid_hex: SharedString::from(pcb.pid_hex()),
@@ -42,7 +42,7 @@ fn pcb_to_slint(pcb: &process::PCB) -> ProcessItem {
 }
 
 /// Converts a Rust LogEntry to a Slint LogItem.
-fn log_to_slint(entry: &scheduler::LogEntry) -> LogItem {
+fn log_to_slint(entry: &LogEntry) -> LogItem {
     LogItem {
         timestamp: entry.timestamp as i32,
         message: SharedString::from(entry.message.as_str()),
@@ -50,7 +50,7 @@ fn log_to_slint(entry: &scheduler::LogEntry) -> LogItem {
 }
 
 /// Converts a Rust GanttEntry to a Slint GanttItem.
-fn gantt_to_slint(entry: &scheduler::GanttEntry, color_map: &std::collections::HashMap<u32, i32>) -> GanttItem {
+fn gantt_to_slint(entry: &GanttEntry, color_map: &std::collections::HashMap<u32, i32>) -> GanttItem {
     let color_idx = color_map.get(&entry.pid).copied().unwrap_or(0);
     GanttItem {
         pid: entry.pid as i32,
@@ -74,7 +74,7 @@ fn metrics_to_slint(m: &metrics::SimulationMetrics) -> MetricsData {
 }
 
 /// Pushes all simulation state to the UI.
-fn update_ui(ui: &AppWindow, sim: &simulation::SimulationEngine) {
+fn update_ui(ui: &AppWindow, sim: &SimulationEngine) {
     // Ready queue
     let ready: Vec<ProcessItem> = sim.ready_queue().iter().map(pcb_to_slint).collect();
     ui.set_ready_queue(ModelRc::new(VecModel::from(ready)));
@@ -149,14 +149,14 @@ fn update_ui(ui: &AppWindow, sim: &simulation::SimulationEngine) {
     state.set_memory_used_mb(sim.memory_used());
     state.set_total_processes(sim.active_count() as i32);
     state.set_alu_cycles(sim.clock() as i32);
-    state.set_sim_running(sim.state == simulation::SimState::Running);
-    state.set_sim_paused(sim.state == simulation::SimState::Paused);
-    state.set_sim_completed(sim.state == simulation::SimState::Completed);
+    state.set_sim_running(sim.state == EngineState::Running);
+    state.set_sim_paused(sim.state == EngineState::Paused);
+    state.set_sim_completed(sim.state == EngineState::Completed);
     state.set_quantum_remaining(sim.quantum_remaining() as i32);
     state.set_table_total(total);
 
     // Auto-navigate to Gantt on completion
-    if sim.state == simulation::SimState::Completed && state.get_current_screen() != 3 {
+    if sim.state == EngineState::Completed && state.get_current_screen() != 3 {
         state.set_current_screen(3);
     }
 }
@@ -164,10 +164,17 @@ fn update_ui(ui: &AppWindow, sim: &simulation::SimulationEngine) {
 // ─── Main ────────────────────────────────────────────────────────────────────
 
 fn main() -> Result<(), slint::PlatformError> {
+    // Check for --cli flag
+    let args: Vec<String> = std::env::args().collect();
+    if args.iter().any(|a| a == "--cli") {
+        run_cli_mode();
+        return Ok(());
+    }
+
     let ui = AppWindow::new()?;
 
     // Shared simulation engine (created on start)
-    let sim: Rc<RefCell<Option<simulation::SimulationEngine>>> = Rc::new(RefCell::new(None));
+    let sim: Rc<RefCell<Option<SimulationEngine>>> = Rc::new(RefCell::new(None));
     let timer = Rc::new(Timer::default());
 
     // ── Start Simulation Callback ────────────────────────
@@ -175,21 +182,21 @@ fn main() -> Result<(), slint::PlatformError> {
     let ui_weak = ui.as_weak();
     let timer_clone = timer.clone();
     ui.on_start_simulation(move |procs, mem, algo, quantum| {
-        let config = simulation::SimConfig {
+        let config = SimConfig {
             initial_processes: procs as u32,
             memory_capacity: mem as u32,
-            algorithm: scheduler::Algorithm::from_index(algo),
+            algorithm: Algorithm::from_index(algo),
             quantum: quantum as u32,
         };
 
-        let engine = simulation::SimulationEngine::new(config);
+        let engine = SimulationEngine::new(config);
 
         if let Some(ui) = ui_weak.upgrade() {
             let state = ui.global::<SimState>();
             state.set_current_screen(1);
             state.set_quantum_max(quantum);
             state.set_algorithm_label(SharedString::from(
-                scheduler::Algorithm::from_index(algo).label(),
+                Algorithm::from_index(algo).label(),
             ));
             state.set_speed(1);
 
@@ -207,7 +214,7 @@ fn main() -> Result<(), slint::PlatformError> {
             move || {
                 let mut sim_ref = sim_inner.borrow_mut();
                 if let Some(ref mut engine) = *sim_ref {
-                    if engine.state == simulation::SimState::Running {
+                    if engine.state == EngineState::Running {
                         engine.tick();
                     }
                     if let Some(ui) = ui_inner.upgrade() {
@@ -292,7 +299,7 @@ fn main() -> Result<(), slint::PlatformError> {
                 move || {
                     let mut sim_r = sim_inner.borrow_mut();
                     if let Some(ref mut e) = *sim_r {
-                        if e.state == simulation::SimState::Running {
+                        if e.state == EngineState::Running {
                             e.tick();
                         }
                         if let Some(ui) = ui_inner.upgrade() {
@@ -391,4 +398,19 @@ fn main() -> Result<(), slint::PlatformError> {
     });
 
     ui.run()
+}
+
+/// Runs the CLI-only mode of the simulator.
+fn run_cli_mode() {
+    use simulador_procesos::ui::cli;
+
+    let config = SimConfig {
+        initial_processes: 5,
+        memory_capacity: 4096,
+        algorithm: Algorithm::FCFS,
+        quantum: 4,
+    };
+
+    let mut engine = SimulationEngine::new(config);
+    cli::run_menu(&mut engine);
 }
