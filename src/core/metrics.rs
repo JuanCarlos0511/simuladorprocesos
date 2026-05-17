@@ -112,6 +112,8 @@ mod tests {
             priority: 5,
             memory_mb: 64.0,
             io_burst: None,
+            estimated_burst: burst as f32,
+            last_burst_actual: 0,
             finish_time: Some(finish),
             turnaround_time: Some(finish - arrival),
             waiting_time: Some(finish - arrival - burst),

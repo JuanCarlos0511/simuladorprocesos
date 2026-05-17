@@ -16,6 +16,7 @@ fn make_pcb(pid: u32, burst: u32) -> PCB {
         pid, name: format!("P{}", pid), state: ProcessState::Ready,
         burst_time: burst, remaining_time: burst, arrival_time: 0,
         priority: 5, memory_mb: 64.0, io_burst: None,
+        estimated_burst: burst as f32, last_burst_actual: 0,
         finish_time: None, turnaround_time: None, waiting_time: None,
     }
 }
@@ -25,6 +26,7 @@ fn make_pcb_prio(pid: u32, priority: u8) -> PCB {
         pid, name: format!("P{}", pid), state: ProcessState::Ready,
         burst_time: 10, remaining_time: 10, arrival_time: 0,
         priority, memory_mb: 64.0, io_burst: None,
+        estimated_burst: 10.0, last_burst_actual: 0,
         finish_time: None, turnaround_time: None, waiting_time: None,
     }
 }

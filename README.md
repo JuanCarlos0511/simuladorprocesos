@@ -18,7 +18,7 @@ Un simulador básico de un gestor de procesos desarrollado en Rust que emula el 
 ## Estructura del Repositorio
 ## Características
 
-- **6 algoritmos de planificación**: FCFS, SJF, SRTF, Round Robin, Prioridad, Prioridad Preemptiva
+- **4 algoritmos de planificación**: FCFS, SJF, Round Robin, Prioridad Preemptiva
 - **Simulación en tiempo real** con velocidad ajustable (1x, 2x, 5x, 10x)
 - **Dashboard interactivo** con colas de procesos, CPU panel y logs
 - **Diagrama de Gantt** con métricas post-simulación

@@ -136,6 +136,14 @@ impl PCB {
         );
     }
 
+    /// Updates the SJF burst estimate using exponential smoothing:
+    /// tau_{n+1} = alpha * t_n + (1 - alpha) * tau_n
+    pub fn update_estimation(&mut self, alpha: f32, actual_burst: u32) {
+        self.last_burst_actual = actual_burst;
+        self.estimated_burst = alpha * (actual_burst as f32) + (1.0 - alpha) * self.estimated_burst;
+    }
+
+
     /// Validates and performs a state transition.
     ///
     /// Returns `Ok(())` if the transition is legal, or `Err(String)` with
@@ -259,5 +267,20 @@ mod tests {
         pcb.state = ProcessState::New;
         assert!(pcb.transition(ProcessState::Running).is_err());
         assert!(pcb.transition(ProcessState::Terminated).is_err());
+    }
+
+    #[test]
+    fn update_estimation_calculates_correctly() {
+        let mut rng = rand::thread_rng();
+        let mut pcb = PCB::new_random(1, 0, &mut rng);
+        pcb.estimated_burst = 10.0;
+        
+        pcb.update_estimation(0.5, 6);
+        assert_eq!(pcb.last_burst_actual, 6);
+        assert_eq!(pcb.estimated_burst, 8.0); // 0.5 * 6 + 0.5 * 10 = 8.0
+        
+        pcb.update_estimation(0.25, 12);
+        assert_eq!(pcb.last_burst_actual, 12);
+        assert_eq!(pcb.estimated_burst, 9.0); // 0.25 * 12 + 0.75 * 8.0 = 3 + 6 = 9.0
     }
 }
