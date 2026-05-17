@@ -1,89 +1,101 @@
-# KERNEL_OS — Simulador de Gestión de Procesos
+# Simulador de Gestor de Procesos para Sistemas Operativos
 
-Aplicación de escritorio nativa que simula la gestión de procesos de un sistema operativo con interfaz visual estilo cyberpunk/terminal de kernel.
+## Descripción del Proyecto
+Un simulador básico de un gestor de procesos desarrollado en Rust que emula el comportamiento de un sistema operativo al administrar múltiples procesos y recursos.
 
-## Características
+## Información del Curso
+* **Materia:** Sistemas Operativos
+* **Institución:** Universidad Autónoma de Tamaulipas
+* **Semestre:** Periodo 2026-1 (Grupo 6 K)
+* **Profesor(es):** Muñoz Quintero Dante Adolfo
 
-- **6 algoritmos de planificación**: FCFS, SJF, SRTF, Round Robin, Prioridad, Prioridad Preemptiva
-- **Simulación en tiempo real** con velocidad ajustable (1x, 2x, 5x, 10x)
-- **Dashboard interactivo** con colas de procesos, CPU panel y logs
-- **Diagrama de Gantt** con métricas post-simulación
-- **Gestión de procesos** con tabla, edición y acciones de lote
-- **Eventos de I/O aleatorios** con 15% de probabilidad por tick
-- **Ejecutable portable** sin dependencias en tiempo de ejecución
+## Integrantes del Equipo
+* Hernández Del Angel José Ismael
+* Hernández Torres José Leonardo
+* Guzmán Antonio Juan Carlos
+* Blanco Alejandre Eder Gael
 
-## Requisitos de Compilación
+## Estructura del Repositorio
+```text
+simulador-gestor-procesos/
+├── README.md
+├── Cargo.toml
+├── .gitignore
+├── LICENSE
+├── src/
+│   ├── main.rs
+│   ├── lib.rs
+│   ├── core/
+│   │   ├── mod.rs
+│   │   ├── process.rs
+│   │   ├── scheduler.rs
+│   │   └── resource.rs
+│   ├── ipc/
+│   │   ├── mod.rs
+│   │   ├── channel.rs
+│   │   └── semaphore.rs
+│   └── ui/
+│       ├── mod.rs
+│       ├── cli.rs
+│       └── logger.rs
+├── tests/
+│   ├── scheduler_tests.rs
+│   ├── resource_tests.rs
+│   └── ipc_tests.rs
+├── examples/
+│   ├── productor_consumidor.rs
+│   └── round_robin_demo.rs
+├── docs/
+│   ├── entregable_final.pdf
+│   └── diagrama_estados.png
+├── capturas/
+│   ├── screenshot01.png
+│   └── screenshot_n.png
+└── benches/
+    └── scheduler_bench.rs
+```
+## 🛠️ Características Principales
 
-### Windows
+El simulador implementa los 6 componentes requeridos por la rúbrica oficial:
 
-1. Instalar [Rust](https://rustup.rs/) (rustup)
-2. Desde la terminal:
-```powershell
+* **Operaciones sobre Procesos:** Creación, suspensión temporizada, reanudación y liberación controlada mediante un Bloque de Control de Procesos (PCB) personalizado.
+* **Asignación de Recursos:** Gestión restrictiva basada en un entorno físico simulado que limita la ejecución a un máximo de 1 CPU y 4 GB de RAM, detectando solicitudes inválidas o falta de recursos de forma preventiva.
+* **Algoritmos de Planificación:** Soporte nativo para First-Come-First-Served (FCFS), Shortest Job First (SJF), Round Robin (con tamaño de Quantum dinámico y configurable) y selección por Prioridades.
+* **Comunicación y Sincronización (IPC):** Sincronización libre de condiciones de carrera gracias al compilador de Rust, empleando exclusión mutua (Mutex), punteros de referencia contada (Arc) y canales asíncronos de paso de mensajes (mpsc). Incluye una demostración funcional para el problema del Productor-Consumidor.
+* **Manejo de Terminación:** Rutinas dedicadas a la finalización normal y forzada de hilos, asegurando la devolución inmediata de los recursos al sistema operativo y el registro pormenorizado del motivo de salida.
+* **Interfaz de Usuario Interactiva (CLI):** Pantalla interactiva en consola que muestra el estado actual del CPU, porcentaje libre de memoria, colas de planificación y un flujo de logs dinámico en la parte inferior.
+
+---
+
+## 🚀 Instalación y Ejecución
+2. Compilar el Proyecto
+Para generar el ejecutable de producción optimizado:
+
+```Bash
 cargo build --release
 ```
-3. El ejecutable estará en `target/release/simulador-procesos.exe`
+3. Ejecutar el Simulador Principal
+Inicia la consola interactiva donde podrás operar el gestor:
 
-### Linux
+```Bash
+cargo run
+```
+4. Ejecutar Caso Demostrativo (Productor-Consumidor)
+Para correr el escenario aislado de sincronización e hilos:
 
-1. Instalar Rust:
+```Bash
+cargo run --example productor_consumidor
+```
+5. Ejecutar Pruebas Automatizadas
+Verifica que todos los algoritmos y restricciones de memoria funcionen correctamente:
+
+```Bash
+cargo test
+```
+
+### Prerrequisitos
+Asegúrate de contar con la suite oficial de Rust instalada en tu sistema. Si no la tienes, puedes instalarla ejecutando:
+
 ```bash
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 ```
-2. Instalar dependencias del sistema (para el backend de renderizado):
-```bash
-# Ubuntu/Debian
-sudo apt install libfontconfig1-dev libfreetype6-dev
-
-# Fedora
-sudo dnf install fontconfig-devel freetype-devel
-```
-3. Compilar:
-```bash
-cargo build --release
-```
-4. El ejecutable estará en `target/release/simulador-procesos`
-
-## Ejecución en Modo Desarrollo
-
-```bash
-cargo run
-```
-
-## Stack Técnico
-
-| Capa | Tecnología |
-|------|-----------|
-| Backend / Lógica | Rust (Edition 2021) |
-| GUI | Slint 1.16 |
-| RNG | rand 0.8 |
-
-## Estructura del Proyecto
-
-```
-simuladorprocesos/
-├── Cargo.toml          # Dependencias y configuración
-├── build.rs            # Compilador de archivos .slint
-├── src/                # Código Rust
-│   ├── main.rs         # Entry point, Timer, bridge UI↔Logic
-│   ├── process.rs      # PCB, ProcessState, generación
-│   ├── metrics.rs      # Cálculos de métricas
-│   ├── simulation.rs   # Motor de simulación
-│   └── scheduler/      # Algoritmos de planificación
-│       ├── mod.rs      # Trait + Scheduler
-│       ├── fcfs.rs
-│       ├── sjf.rs
-│       ├── srtf.rs
-│       ├── round_robin.rs
-│       ├── priority.rs
-│       └── priority_preemptive.rs
-└── ui/                 # Interfaz Slint
-    ├── app.slint       # Ventana principal
-    ├── theme/          # Paleta y tipografía
-    ├── structs.slint   # Structs compartidos
-    ├── globals.slint   # Estado global
-    └── components/     # Componentes visuales
-```
-
-## Licencia
-
-Uso educativo.
